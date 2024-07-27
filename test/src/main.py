@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from .routers import coins, categories
+from routers import coins, categories
 import os
 from dotenv import load_dotenv
 

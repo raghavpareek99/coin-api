@@ -1,18 +1,26 @@
+import sys
+import os
+from dotenv import load_dotenv
 import pytest
 from fastapi.testclient import TestClient
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Add the src directory to the path for imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
+
 from main import app
-import os
 
 # Set up the test client
 client = TestClient(app)
 
-# Environment variables for testing
-os.environ["BASIC_AUTH_USERNAME"] = "testuser"
-os.environ["BASIC_AUTH_PASSWORD"] = "testpass"
-
-def get_auth_headers(username: str = "testuser", password: str = "testpass"):
+def get_auth_headers(username: str = os.getenv("BASIC_AUTH_USERNAME"), password: str = os.getenv("BASIC_AUTH_PASSWORD")):
+    import base64
+    credentials = f"{username}:{password}"
+    encoded_credentials = base64.b64encode(credentials.encode()).decode()
     return {
-        "Authorization": f"Basic {username}:{password}"
+        "Authorization": f"Basic {encoded_credentials}"
     }
 
 def test_read_root():
@@ -41,7 +49,7 @@ def test_list_coins():
     # Further checks can be made based on the expected response structure
 
 def test_get_coin_details():
-    coin_id = "bitcoin"  # Use a valid coin_id for testing
+    coin_id = "bitcoin"  # Replace with a valid coin_id for testing
     response = client.get(f"/coins/{coin_id}", headers=get_auth_headers())
     assert response.status_code == 200
     # Further checks can be made based on the expected response structure
